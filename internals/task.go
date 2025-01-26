@@ -6,8 +6,9 @@ type InsertTask struct {
 }
 
 type Task struct {
-	id          int
-	name        string
-	description string
-	date        string
+	Id          int
+	Name        string
+	Description string
+	Date        string
+	Completed   bool
 }

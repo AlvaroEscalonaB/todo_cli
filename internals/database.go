@@ -14,7 +14,8 @@ const createDatabaseInitialString string = `
   id INTEGER NOT NULL PRIMARY KEY,
 	name STRING NOT NULL,
   description TEXT,
-  date DATETIME NOT NULL
+  date DATETIME NOT NULL,
+	completed BOOL NOT NULL
 );`
 
 func SetupFileDatabase() error {
