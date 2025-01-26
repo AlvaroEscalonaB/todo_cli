@@ -14,7 +14,6 @@ var addTodo = &cobra.Command{
 	Long:  `add`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Arg is %s\n", args[0])
 		description, err := cmd.Flags().GetString("description")
 		if err != nil {
 			log.Fatalf("Error on get flag 'description' %v", description)
