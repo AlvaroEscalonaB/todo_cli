@@ -32,13 +32,13 @@ var addTodo = &cobra.Command{
 			Name:        args[0],
 			Description: description,
 		}
-		tasks, err := taskRepository.NewTask(task)
+		_, err = taskRepository.NewTask(task)
 
 		if err != nil {
 			log.Fatalf("Cannot read the query %s", err)
 		}
 
-		fmt.Println(tasks)
+		fmt.Println("Added task")
 	},
 }
 

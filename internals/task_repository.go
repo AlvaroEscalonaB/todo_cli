@@ -14,8 +14,8 @@ type TaskRepository struct {
 
 func (taskRepository TaskRepository) NewTask(task InsertTask) (int, error) {
 	result, err := taskRepository.Db.Exec(
-		"INSERT INTO tasks (name, description, date, completed) VALUES(?, ?, ?, FALSE);",
-		TableName, task.Name, task.Description, time.Now(), false,
+		"INSERT INTO tasks (name, description, date, completed) VALUES(?, ?, ?, ?);",
+		task.Name, task.Description, time.Now(), false,
 	)
 	if err != nil {
 		return 0, err
@@ -30,15 +30,20 @@ func (taskRepository TaskRepository) NewTask(task InsertTask) (int, error) {
 	return int(id), nil
 }
 
-func (taskRepository TaskRepository) ListTask(completed bool) ([]Task, error) {
+func (taskRepository TaskRepository) ListTask(completed bool, uncompleted bool) ([]Task, error) {
 	var tasks []Task
 	var query string
 
+	query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s", TableName)
+
 	if completed {
-		query = fmt.Sprintf("SELECT * FROM %s WHERE completed = TRUE", TableName)
-	} else {
-		query = fmt.Sprintf("SELECT * FROM %s", TableName)
+		query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s WHERE completed = TRUE", TableName)
 	}
+
+	if uncompleted {
+		query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s WHERE completed != TRUE", TableName)
+	}
+
 	results, err := taskRepository.Db.Query(query)
 
 	if err != nil {
@@ -49,7 +54,10 @@ func (taskRepository TaskRepository) ListTask(completed bool) ([]Task, error) {
 	for results.Next() {
 		var task Task
 
-		results.Scan(&task.Id, &task.Name, &task.Description, &task.Date, &task.Completed)
+		err := results.Scan(&task.Id, &task.Name, &task.Description, &task.Date, &task.Completed)
+		if err != nil {
+			return tasks, err
+		}
 		tasks = append(tasks, task)
 	}
 	defer taskRepository.Db.Close()
@@ -58,7 +66,6 @@ func (taskRepository TaskRepository) ListTask(completed bool) ([]Task, error) {
 
 func (taskRepository TaskRepository) CompleteTask(id int) (Task, error) {
 	var task Task
-	println(id)
 	taskResult := taskRepository.Db.QueryRow("SELECT id, name, description, date, completed FROM tasks WHERE id = ?", id)
 
 	if err := taskResult.Scan(&task.Id, &task.Name, &task.Description, &task.Date, &task.Completed); err != nil {
