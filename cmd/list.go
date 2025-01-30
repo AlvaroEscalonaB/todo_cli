@@ -30,6 +30,11 @@ var listTasks = &cobra.Command{
 			log.Fatalf("Issue obtaining the flag of completed: %s", err)
 		}
 
+		uncompletedFlag, err := cmd.Flags().GetBool("uncompleted")
+		if err != nil {
+			log.Fatalf("Issue obtaining the flag of uncompleted: %s", err)
+		}
+
 		db, err := internals.GetDatabase()
 
 		if err != nil {
@@ -39,7 +44,7 @@ var listTasks = &cobra.Command{
 		taskRepository := internals.TaskRepository{
 			Db: db,
 		}
-		tasks, err := taskRepository.ListTask(completedFlag)
+		tasks, err := taskRepository.ListTask(completedFlag, uncompletedFlag)
 
 		if err != nil {
 			log.Fatalf("Cannot read the query %s", err)
@@ -67,4 +72,5 @@ var listTasks = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listTasks)
 	listTasks.PersistentFlags().Bool("completed", false, "Filter the tasks if are completed")
+	listTasks.PersistentFlags().Bool("uncompleted", false, "Filter the tasks that are uncompleted")
 }

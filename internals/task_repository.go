@@ -30,15 +30,20 @@ func (taskRepository TaskRepository) NewTask(task InsertTask) (int, error) {
 	return int(id), nil
 }
 
-func (taskRepository TaskRepository) ListTask(completed bool) ([]Task, error) {
+func (taskRepository TaskRepository) ListTask(completed bool, uncompleted bool) ([]Task, error) {
 	var tasks []Task
 	var query string
 
+	query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s", TableName)
+
 	if completed {
 		query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s WHERE completed = TRUE", TableName)
-	} else {
-		query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s", TableName)
 	}
+
+	if uncompleted {
+		query = fmt.Sprintf("SELECT id, name, description, date, completed FROM %s WHERE completed != TRUE", TableName)
+	}
+
 	results, err := taskRepository.Db.Query(query)
 
 	if err != nil {
